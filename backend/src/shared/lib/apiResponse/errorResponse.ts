@@ -1,5 +1,5 @@
 import type { Response } from "express";
-import type { ApiErrorType, ApiResponseType } from "./apiResponse.types";
+import type { ApiResponseType } from "./apiResponse.types";
 
 /**
  * Sends a standardized error API response.
@@ -28,11 +28,11 @@ import type { ApiErrorType, ApiResponseType } from "./apiResponse.types";
  *   code: "PAYMENT_NOT_FOUND",
  *   message: "Payment does not exist"
  * }, 404)
- * 
+ *
  */
-export default function errorResponse(
+export default function errorResponse<T>(
   res: Response,
-  error: ApiErrorType,
+  error: T,
   statusCode: number,
 ): Response<ApiResponseType> {
   const { requestId, timeStamp } = res.locals;

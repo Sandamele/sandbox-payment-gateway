@@ -1,21 +1,28 @@
 import type { NextFunction, Request, Response } from "express";
-import type { AppError } from "./appError";
-import errorResponse from "../lib/apiResponse/errorResponse";
+import { AppError } from "./appError";
+import errorResponse from "../shared/lib/apiResponse/errorResponse";
 
 export default function globalErrorHandler(
-  err: AppError,
+  err: unknown,
   req: Request,
   res: Response,
   next: NextFunction,
 ) {
-  const error = {
-    message: err.message || "Something went wrong. Please try again.",
-    stack: err.stack,
-    path: req.path,
-    method: req.method,
-    code: err.code,
-  };
-  console.error({ error });
-  delete error.stack;
-  return errorResponse(res, error, err.statusCode || 500);
+  if (err instanceof AppError) {
+    const error = {
+      message: err.message,
+      code: err.code,
+    };
+    console.error({ error });
+    return errorResponse(res, error, err.statusCode);
+  }
+  console.error(err);
+  return errorResponse(
+    res,
+    {
+      message: "Something went wrong. Please try again.",
+      code: "INTERNAL_SERVER_ERROR",
+    },
+    500,
+  );
 }

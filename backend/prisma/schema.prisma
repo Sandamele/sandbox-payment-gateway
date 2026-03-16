@@ -7,12 +7,86 @@ datasource db {
   provider = "postgresql"
 }
 
+enum PaymentStatus {
+  PENDING
+  CAPTURED
+  FAILED
+  REFUNDED
+}
+
+enum LedgerType {
+  DEBIT // Payment captured from customer
+  CREDIT // Funds credited to merchant
+}
+
 model ApiKeys {
-  id String @id @default(ulid())
+  id         String    @id @default(ulid())
   merchantId String
-  apiKey String
-  isActive Boolean @default(true)
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  apiKey     String    @unique
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  updatedAt  DateTime  @updatedAt
   revokedAt  DateTime?
+  lastUsedAt DateTime?
+}
+
+// Currency Support Table
+model Currency {
+  id            String   @id @default(ulid())
+  code          String   @unique
+  name          String
+  symbol        String
+  country       String
+  isActive      Boolean  @default(true)
+  decimalPlaces Int      @default(2)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  payments Payment[]
+
+  paymentLedgers PaymentLedger[]
+}
+
+// Payment Table
+model Payment {
+  id             String        @id @default(ulid())
+  merchantId     String
+  amount         Int
+  currencyCode   String
+  status         PaymentStatus
+  refundedAmount Int           @default(0)
+  refundedAt     DateTime?
+  createdAt      DateTime      @default(now())
+  updatedAt      DateTime      @updatedAt
+
+  currency Currency @relation(fields: [currencyCode], references: [code])
+
+  paymentLedgers PaymentLedger[]
+}
+
+// Ledger Table
+model PaymentLedger {
+  id           String     @id @default(ulid())
+  paymentId    String
+  merchantId   String
+  amount       Int
+  currencyCode String
+  type         LedgerType
+  description  String
+  createdAt    DateTime   @default(now())
+
+  currency Currency @relation(fields: [currencyCode], references: [code])
+  payment  Payment  @relation(fields: [paymentId], references: [id])
+}
+
+// TODO merchant relations
+
+// cache table
+model Cache {
+  key       String   @id
+  value     Json
+  expiresAt DateTime @map("expires_at")
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("cache")
 }

@@ -1,4 +1,4 @@
-import { prisma } from "../../lib/prisma";
+import { prisma } from "../../shared/lib/prisma";
 
 export const createApiKeysRepository = async (
   merchantId: string,
@@ -12,7 +12,10 @@ export const createApiKeysRepository = async (
   });
 };
 
-export const findMerchantApiKey = async (merchantId: string, id: string) => {
+export const findMerchantApiKeyRepository = async (
+  merchantId: string,
+  id: string,
+) => {
   return await prisma.apiKeys.findFirst({ where: { id, merchantId } });
 };
 

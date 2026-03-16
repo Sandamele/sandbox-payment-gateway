@@ -1,15 +1,17 @@
 import { AppError } from "../../errors/appError";
-import { errorService } from "../../errors/errorService";
-import { generateApiKey } from "../../lib/generateApiKey";
-import { hashApiKey } from "../../lib/hashApiKey";
+import { generateApiKey } from "../../shared/lib/generateApiKey";
+import { hashApiKey } from "../../shared/lib/hashApiKey";
 import {
   createApiKeysRepository,
-  findMerchantApiKey,
+  findMerchantApiKeyRepository,
   revokeApiKeyRepository,
 } from "./apiKeys.repository";
 
-export const createApiKeysService = async (merchantId: string) => {
-  const prefix = process.env.NODE_ENV === "production" ? "sk_prod_" : "sk_dev_";
+export const createApiKeysService = async (
+  merchantId: string,
+  environment: string,
+) => {
+  const prefix = environment === "production" ? "sk_prod_" : "sk_dev_";
   const apiKey = `${prefix}${generateApiKey()}`;
   const hashedKey = hashApiKey(apiKey);
   const record = await createApiKeysRepository(merchantId, hashedKey);
@@ -24,13 +26,17 @@ export const createApiKeysService = async (merchantId: string) => {
 };
 
 export const revokeApiKeyService = async (merchantId: string, id: string) => {
-  const apiKeyExist = await findMerchantApiKey(merchantId, id);
+  const apiKeyExist = await findMerchantApiKeyRepository(merchantId, id);
   if (!apiKeyExist) {
     throw new AppError("API Key not found", 404, "NOT_FOUND");
   }
 
   if (!apiKeyExist.isActive) {
-    throw new AppError("API key is already revoked", 400, "KEY_ALREADY_REVOKED");
+    throw new AppError(
+      "API key is already revoked",
+      400,
+      "KEY_ALREADY_REVOKED",
+    );
   }
   const update = await revokeApiKeyRepository(id);
   return {

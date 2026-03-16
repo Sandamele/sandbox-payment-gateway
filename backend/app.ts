@@ -7,10 +7,12 @@ import "dotenv/config";
 import morgan from "morgan";
 import cors from "cors";
 import apiKeysV1 from "./src/features/apiKeys/apiKeys.routes";
+import paymentsV1 from "./src/features/payments/payments.routes";
 import globalErrorHandler from "./src/errors/globalErrorHandler";
 import { AppError } from "./src/errors/appError";
-import { requestMetadata } from "./src/middleware/requestMetadata";
-import successResponse from "./src/lib/apiResponse/successResponse";
+import { requestMetadata } from "./src/shared/middleware/requestMetadata";
+import successResponse from "./src/shared/lib/apiResponse/successResponse";
+import { apiKeyAuth } from "./src/features/apiKeyAuth/apiKeyAuth.controllers";
 
 const app = express();
 app.use(cors());
@@ -30,6 +32,7 @@ app.get("/health", (_, res) => {
 // v1 endpoints
 const version1 = "/api/v1";
 app.use(`${version1}/merchants/:merchantId/api-keys`, apiKeysV1);
+app.use(`${version1}/payments`, apiKeyAuth, paymentsV1);
 
 // this handles endpoints that do not exist
 app.use((req: Request, res: Response, next: NextFunction) => {
