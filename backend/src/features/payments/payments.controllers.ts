@@ -1,4 +1,4 @@
-import successResponse from "../../shared/lib/apiResponse/successResponse";
+import successResponse from "../../lib/apiResponse/successResponse";
 import type { RequestHandler } from "express";
 import {
   createPaymentService,

@@ -1,4 +1,4 @@
-import { prisma } from "../../shared/lib/prisma";
+import { prisma } from "../../lib/prisma";
 import type { LedgerType } from "../ledge/ledger.types";
 import type { PaymentRepositoryType, StatusType } from "./payments.types";
 

@@ -1,4 +1,4 @@
-import { convertToCents } from "../../shared/lib/convertToCents";
+import { convertToCents } from "../../lib/convertToCents";
 import {
   createPaymentRepository,
   findAllPaymentsRepository,
@@ -9,7 +9,7 @@ import {
 } from "./payments.repository";
 import { AppError } from "../../errors/appError";
 import { findCurrencyService } from "../currency";
-import { getRandomPaymentStatus } from "../../shared/lib/getRandomPaymentStatus";
+import { getRandomPaymentStatus } from "../../lib/getRandomPaymentStatus";
 import { setCacheService } from "../cache";
 import type { LedgerType } from "../ledge/ledger.types";
 const TTL_SECONDS = 86400;

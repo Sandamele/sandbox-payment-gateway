@@ -1,9 +1,9 @@
 import type { RequestHandler } from "express";
 import { AppError } from "../../errors/appError";
 import { getCacheService } from "../../features/cache";
-import successResponse from "../lib/apiResponse/successResponse";
+import successResponse from "../../lib/apiResponse/successResponse";
 import type { Prisma } from "../../../generated/prisma/client";
-import { isUuid } from "../lib/isUuid";
+import { isUuid } from "../../lib/isUuid";
 
 export const handleIdempotencyKey: RequestHandler = async (req, res, next) => {
   const idempotencyKey = (

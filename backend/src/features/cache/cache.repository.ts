@@ -1,5 +1,5 @@
 import type { Prisma } from "../../../generated/prisma/client";
-import { prisma } from "../../shared/lib/prisma";
+import { prisma } from "../../lib/prisma";
 
 export const getCacheRepository = async (key: string) => {
   return await prisma.cache.findUnique({ where: { key } });

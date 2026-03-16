@@ -1,4 +1,4 @@
-import { prisma } from "../../shared/lib/prisma";
+import { prisma } from "../../lib/prisma";
 
 export const findApiKey = async (apiKey: string) => {
   return await prisma.apiKeys.findUnique({ where: { apiKey } });

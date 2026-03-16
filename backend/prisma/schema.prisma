@@ -19,6 +19,22 @@ enum LedgerType {
   CREDIT // Funds credited to merchant
 }
 
+model Merchant {
+  id               String   @id @default(ulid())
+  userId           String   @unique
+  email            String   @unique
+  organizationName String
+  isActive         Boolean? @default(true)
+  createdAt        DateTime @default(now())
+  updatedAt        DateTime @updatedAt
+
+  apiKeys ApiKeys[]
+
+  payments Payment[]
+
+  paymentLedgers PaymentLedger[]
+}
+
 model ApiKeys {
   id         String    @id @default(ulid())
   merchantId String
@@ -28,6 +44,8 @@ model ApiKeys {
   updatedAt  DateTime  @updatedAt
   revokedAt  DateTime?
   lastUsedAt DateTime?
+
+  merchants Merchant @relation(fields: [merchantId], references: [id])
 }
 
 // Currency Support Table
@@ -61,6 +79,7 @@ model Payment {
 
   currency Currency @relation(fields: [currencyCode], references: [code])
 
+  merchants Merchant @relation(fields: [merchantId], references: [id])
   paymentLedgers PaymentLedger[]
 }
 
@@ -76,6 +95,7 @@ model PaymentLedger {
   createdAt    DateTime   @default(now())
 
   currency Currency @relation(fields: [currencyCode], references: [code])
+  merchants Merchant @relation(fields: [merchantId], references: [id])
   payment  Payment  @relation(fields: [paymentId], references: [id])
 }
 

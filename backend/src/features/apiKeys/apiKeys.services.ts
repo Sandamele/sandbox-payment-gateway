@@ -1,6 +1,6 @@
 import { AppError } from "../../errors/appError";
-import { generateApiKey } from "../../shared/lib/generateApiKey";
-import { hashApiKey } from "../../shared/lib/hashApiKey";
+import { generateApiKey } from "../../lib/generateApiKey";
+import { hashApiKey } from "../../lib/hashApiKey";
 import {
   createApiKeysRepository,
   findMerchantApiKeyRepository,

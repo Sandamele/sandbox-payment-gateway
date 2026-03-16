@@ -6,8 +6,8 @@ import {
   refundPayment,
 } from "./payments.controllers";
 import { validateCreatePayment, validateRefund } from "./payments.validation";
-import validationResponse from "../../shared/middleware/validationRequestError";
-import { handleIdempotencyKey } from "../../shared/middleware/handleIdempotencyKey";
+import validationResponse from "../../configs/middleware/validationRequestError";
+import { handleIdempotencyKey } from "../../configs/middleware/handleIdempotencyKey";
 const router = Router();
 
 router.get("/", findAllPayments);

@@ -1,6 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
 import { AppError } from "./appError";
-import errorResponse from "../shared/lib/apiResponse/errorResponse";
+import errorResponse from "../lib/apiResponse/errorResponse";
 
 export default function globalErrorHandler(
   err: unknown,
