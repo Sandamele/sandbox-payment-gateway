@@ -9,3 +9,12 @@ export interface PaymentRepositoryType {
   merchantId: string;
   status: StatusType;
 }
+
+export interface LedgerType {
+  paymentId: string;
+  merchantId: string;
+  amount: number;
+  currencyCode: string;
+  type: "DEBIT" | "CREDIT";
+  description: string;
+}

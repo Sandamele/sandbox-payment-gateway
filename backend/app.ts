@@ -24,8 +24,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(morgan("dev"));
 app.use(requestMetadata);
 app.use(auth(authConfig));
-app.get("/", requiresAuth(), (req, res) => {
-  console.log(req.oidc.idToken);
+app.get("/", (req, res) => {
   return successResponse(
     res,
     { message: req.oidc.isAuthenticated() ? "Logged in" : "Logged out" },

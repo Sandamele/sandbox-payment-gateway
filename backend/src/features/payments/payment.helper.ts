@@ -1,6 +1,6 @@
 // features/payments/payments.helpers.ts
 
-import type { LedgerType } from "../ledger/ledger.types";
+import type { LedgerType } from "./payments.types";
 
 export const paymentLedgerEntries = (
   paymentId: string,

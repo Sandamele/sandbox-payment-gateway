@@ -10,9 +10,7 @@ import {
 import { AppError } from "../../errors/appError";
 import { validateCurrencyService } from "../currency";
 import { getRandomPaymentStatus } from "../../lib/getRandomPaymentStatus";
-import type { LedgerType } from "../ledger/ledger.types";
 import { paymentLedgerEntries, refundLedgerEntries } from "./payment.helper";
-
 
 export const createPaymentService = async (
   amount: number,

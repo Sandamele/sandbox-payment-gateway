@@ -30,5 +30,5 @@ export const revokeApiKeyRepository = async (id: string) => {
 };
 
 export const findMerchantByIdRepository = async (id: string) => {
-  return await prisma.merchant.findUnique({ where: { id } });
+  return await prisma.merchant.findUnique({ where: { id: id } });
 };
