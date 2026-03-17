@@ -1,3 +1,3 @@
 export const convertToCents = (amount: number, decimalPlace: number) => {
-  return amount * Math.pow(10, decimalPlace);
+  return Math.round(amount * Math.pow(10, decimalPlace));
 };

@@ -1,1 +1,4 @@
-export { findCurrencyService } from "./currency.services";
+export {
+  findCurrencyService,
+  validateCurrencyService,
+} from "./currency.services";
