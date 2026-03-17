@@ -11,12 +11,12 @@ import paymentsV1 from "./src/features/payments/payments.routes";
 import merchantsV1 from "./src/features/merchants/merchants.routes";
 import globalErrorHandler from "./src/errors/globalErrorHandler";
 import { AppError } from "./src/errors/appError";
-import { requestMetadata } from "./src/configs/middleware/requestMetadata";
 import successResponse from "./src/lib/apiResponse/successResponse";
 import { apiKeyAuth } from "./src/features/apiKeyAuth/apiKeyAuth.controllers";
 import { authConfig } from "./src/configs/auth0";
-
 import { auth, requiresAuth } from "express-openid-connect";
+import { requestMetadata } from "./src/middleware/requestMetadata";
+
 const app = express();
 app.use(cors());
 app.use(express.json());
