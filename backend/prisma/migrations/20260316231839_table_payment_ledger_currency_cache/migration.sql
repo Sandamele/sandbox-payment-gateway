@@ -28,7 +28,6 @@ CREATE TABLE "Payment" (
     "status" "PaymentStatus" NOT NULL,
     "refundedAmount" INTEGER NOT NULL DEFAULT 0,
     "refundedAt" TIMESTAMP(3),
-    "idempotencyKey" TEXT NOT NULL,
     "createdAt" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
@@ -49,17 +48,30 @@ CREATE TABLE "PaymentLedger" (
     CONSTRAINT "PaymentLedger_pkey" PRIMARY KEY ("id")
 );
 
--- CreateIndex
-CREATE UNIQUE INDEX "Currency_code_key" ON "Currency"("code");
+-- CreateTable
+CREATE TABLE "cache" (
+    "key" TEXT NOT NULL,
+    "value" JSONB NOT NULL,
+    "expires_at" TIMESTAMP(3) NOT NULL,
+    "created_at" TIMESTAMP(3) NOT NULL DEFAULT CURRENT_TIMESTAMP,
+
+    CONSTRAINT "cache_pkey" PRIMARY KEY ("key")
+);
 
 -- CreateIndex
-CREATE UNIQUE INDEX "Payment_idempotencyKey_key" ON "Payment"("idempotencyKey");
+CREATE UNIQUE INDEX "Currency_code_key" ON "Currency"("code");
 
 -- AddForeignKey
 ALTER TABLE "Payment" ADD CONSTRAINT "Payment_currencyCode_fkey" FOREIGN KEY ("currencyCode") REFERENCES "Currency"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
+ALTER TABLE "Payment" ADD CONSTRAINT "Payment_merchantId_fkey" FOREIGN KEY ("merchantId") REFERENCES "Merchant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
 ALTER TABLE "PaymentLedger" ADD CONSTRAINT "PaymentLedger_currencyCode_fkey" FOREIGN KEY ("currencyCode") REFERENCES "Currency"("code") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+-- AddForeignKey
+ALTER TABLE "PaymentLedger" ADD CONSTRAINT "PaymentLedger_merchantId_fkey" FOREIGN KEY ("merchantId") REFERENCES "Merchant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 
 -- AddForeignKey
 ALTER TABLE "PaymentLedger" ADD CONSTRAINT "PaymentLedger_paymentId_fkey" FOREIGN KEY ("paymentId") REFERENCES "Payment"("id") ON DELETE RESTRICT ON UPDATE CASCADE;

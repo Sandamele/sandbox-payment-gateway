@@ -1,5 +1,5 @@
 import { AppError } from "../../errors/appError";
-import { hashApiKey } from "../../shared/lib/hashApiKey";
+import { hashApiKey } from "../../lib/hashApiKey";
 
 import { findApiKey, updateLastUsed } from "./apiKeyAuth.repository";
 

@@ -1,5 +1,5 @@
 import { AppError } from "../../errors/appError";
-import successResponse from "../../shared/lib/apiResponse/successResponse";
+import successResponse from "../../lib/apiResponse/successResponse";
 import type { RouteHandler } from "../../types/routeHandle.types";
 import { createApiKeysService, revokeApiKeyService } from "./apiKeys.services";
 
