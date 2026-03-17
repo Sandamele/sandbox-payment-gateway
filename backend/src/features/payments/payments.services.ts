@@ -8,28 +8,16 @@ import {
   updateFailedPaymentRepository,
 } from "./payments.repository";
 import { AppError } from "../../errors/appError";
-import { findCurrencyService } from "../currency";
+import { validateCurrencyService } from "../currency";
 import { getRandomPaymentStatus } from "../../lib/getRandomPaymentStatus";
-import { setCacheService } from "../cache";
-import type { LedgerType } from "../ledge/ledger.types";
-const TTL_SECONDS = 86400;
+import { paymentLedgerEntries, refundLedgerEntries } from "./payment.helper";
 
 export const createPaymentService = async (
   amount: number,
   currencyCode: string,
   merchantId: string,
-  idempotencyKey: string,
 ) => {
-  const currency = await findCurrencyService(currencyCode);
-
-  if (!currency) {
-    throw new AppError("Invalid currency code", 400, "INVALID_CURRENCY_CODE");
-  }
-
-  if (!currency.isActive) {
-    throw new AppError("Currency code not available", 400, "NOT_AVAILABLE");
-  }
-
+  const currency = await validateCurrencyService(currencyCode);
   const amountInCents = convertToCents(amount, currency.decimalPlaces);
 
   const payment = await createPaymentRepository({
@@ -47,35 +35,23 @@ export const createPaymentService = async (
       payment.id,
       "FAILED",
     );
-    await setCacheService(idempotencyKey, failedPayment, TTL_SECONDS);
     return failedPayment;
   }
-  const ledger = {
-    paymentId: payment.id,
+  const { ledgerDebit, ledgerCredit } = paymentLedgerEntries(
+    payment.id,
     merchantId,
-    amount: amountInCents,
-    currencyCode: payment.currencyCode,
-  };
-  const ledgerDebit: LedgerType = {
-    ...ledger,
-    type: "DEBIT",
-    description: "Payment captured from customer",
-  };
-  const ledgerCredit: LedgerType = {
-    ...ledger,
-    type: "CREDIT",
-    description: "Funds credited to merchant",
-  };
-
+    amountInCents,
+    currencyCode,
+  );
   const capturedPayment = await processPaymentTransactionRepository(
     payment.id,
     "CAPTURED",
     ledgerDebit,
     ledgerCredit,
   );
-  await setCacheService(idempotencyKey, capturedPayment[0], TTL_SECONDS);
   return capturedPayment[0];
 };
+
 export const findAllPaymentsService = async (merchantId: string) => {
   return await findAllPaymentsRepository(merchantId);
 };
@@ -96,8 +72,38 @@ export const refundPaymentService = async (
   paymentId: string,
   amount: number,
   merchantId: string,
-  idempotencyKey: string,
 ) => {
+  const payment = await validateFindPayment(paymentId, merchantId);
+  const amountInCents = convertToCents(
+    amount,
+    payment.currency.decimalPlaces || 0,
+  );
+
+  const totalRefundAmountInCents = payment.refundedAmount + amountInCents;
+  if (totalRefundAmountInCents > payment.amount) {
+    throw new AppError(
+      "Refund cannot exceed amount",
+      400,
+      "REFUND_AMOUNT_EXCEED",
+    );
+  }
+  const { ledgerDebit, ledgerCredit } = refundLedgerEntries(
+    payment.id,
+    merchantId,
+    amountInCents,
+    payment.currencyCode,
+  );
+  const refunded = await processRefundPaymentRepository(
+    paymentId,
+    totalRefundAmountInCents,
+    totalRefundAmountInCents === payment.amount ? "REFUNDED" : "CAPTURED",
+    ledgerDebit,
+    ledgerCredit,
+  );
+  return refunded[0];
+};
+
+const validateFindPayment = async (paymentId: string, merchantId: string) => {
   const payment = await findPaymentService(paymentId, merchantId);
 
   if (payment.status === "REFUNDED") {
@@ -115,44 +121,5 @@ export const refundPaymentService = async (
       "PAYMENT_NOT_CAPTURED",
     );
   }
-
-  const amountInCents = convertToCents(
-    amount,
-    payment.currency.decimalPlaces || 0,
-  );
-
-  const totalRefundAmountInCents = payment.refundedAmount + amountInCents;
-  if (totalRefundAmountInCents > payment.amount) {
-    throw new AppError(
-      "Refund cannot exceed amount",
-      400,
-      "REFUND_AMOUNT_EXCEED",
-    );
-  }
-  const ledger = {
-    paymentId: payment.id,
-    merchantId,
-    amount: amountInCents,
-    currencyCode: payment.currencyCode,
-  };
-
-  const ledgerDebit: LedgerType = {
-    ...ledger,
-    type: "DEBIT",
-    description: "Refund issued to customer",
-  };
-  const ledgerCredit: LedgerType = {
-    ...ledger,
-    type: "CREDIT",
-    description: "Funds reversed from merchant",
-  };
-  const refunded = await processRefundPaymentRepository(
-    paymentId,
-    totalRefundAmountInCents,
-    totalRefundAmountInCents === payment.amount ? "REFUNDED" : "CAPTURED",
-    ledgerDebit,
-    ledgerCredit,
-  );
-  await setCacheService(idempotencyKey, refunded[0], TTL_SECONDS);
-  return refunded[0];
+  return payment;
 };

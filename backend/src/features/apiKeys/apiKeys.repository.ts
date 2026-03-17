@@ -20,12 +20,15 @@ export const findMerchantApiKeyRepository = async (
 };
 
 export const revokeApiKeyRepository = async (id: string) => {
-  const date = new Date();
   return await prisma.apiKeys.update({
     data: {
       isActive: false,
-      revokedAt: date.toISOString().toString(),
+      revokedAt: new Date(),
     },
     where: { id },
   });
+};
+
+export const findMerchantByIdRepository = async (id: string) => {
+  return await prisma.merchant.findUnique({ where: { id: id } });
 };

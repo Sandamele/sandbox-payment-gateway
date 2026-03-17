@@ -1,5 +1,6 @@
 import type { NextFunction, Request, Response } from "express";
-import { validationResult  } from "express-validator";
+import { validationResult } from "express-validator";
+import errorResponse from "../lib/apiResponse/errorResponse";
 
 export default function validationResponse(
   req: Request,
@@ -13,17 +14,7 @@ export default function validationResponse(
       field: "path" in error ? error.path : undefined, // accessing 'path' to tell the frontend which field failed validation; safe because we're only handling FieldValidationError
     }));
 
-    const { requestId, timeStamp } = res.locals;
-
-    return res.status(400).json({
-      success: false,
-      error: formattedErrors,
-      data: null,
-      meta: {
-        requestId,
-        timeStamp,
-      },
-    });
+    return errorResponse(res, formattedErrors, 400);
   }
   next();
 }

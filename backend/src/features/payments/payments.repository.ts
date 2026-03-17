@@ -1,6 +1,5 @@
 import { prisma } from "../../lib/prisma";
-import type { LedgerType } from "../ledge/ledger.types";
-import type { PaymentRepositoryType, StatusType } from "./payments.types";
+import type { LedgerType, PaymentRepositoryType, StatusType } from "./payments.types";
 
 export const createPaymentRepository = async ({
   amountInCents,

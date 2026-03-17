@@ -6,15 +6,16 @@ import {
   findPaymentService,
   refundPaymentService,
 } from "./payments.services";
+import { setCacheService } from "../cache";
+const TTL_SECONDS = 86400;
+
 export const createPayment: RequestHandler = async (req, res) => {
   const { currencyCode, amount } = req.body;
   const { merchantId } = res.locals;
   const idempotencyKey = req.headers["x-idempotency-key"] as string;
-  const payment = await createPaymentService(
-    amount,
-    currencyCode,
-    merchantId,
-    idempotencyKey,
+  const payment = await createPaymentService(amount, currencyCode, merchantId);
+  await setCacheService(idempotencyKey, payment, TTL_SECONDS).catch((error) =>
+    console.error("Idempotency cache write failed", { idempotencyKey, error }),
   );
   return successResponse(res, payment, 201);
 };
@@ -37,11 +38,10 @@ export const refundPayment: RequestHandler = async (req, res) => {
   const { amount } = req.body;
   const { merchantId } = res.locals;
   const idempotencyKey = req.headers["x-idempotency-key"] as string;
-  const payment = await refundPaymentService(
-    id,
-    amount,
-    merchantId,
-    idempotencyKey,
+  const payment = await refundPaymentService(id, amount, merchantId);
+  await setCacheService(idempotencyKey, payment, TTL_SECONDS).catch((error) =>
+    console.error("Idempotency cache write failed", { idempotencyKey, error }),
   );
+
   return successResponse(res, payment, 200);
 };
