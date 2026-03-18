@@ -11,11 +11,14 @@ import { AppError } from "../../errors/appError";
 import { validateCurrencyService } from "../currency";
 import { getRandomPaymentStatus } from "../../lib/getRandomPaymentStatus";
 import { paymentLedgerEntries, refundLedgerEntries } from "./payment.helper";
+import { paymentsLogger } from "../../lib/logger/payments.logger";
+import type { LogDataType } from "../../types/logger.type";
 
 export const createPaymentService = async (
   amount: number,
   currencyCode: string,
   merchantId: string,
+  requestId: string,
 ) => {
   const currency = await validateCurrencyService(currencyCode);
   const amountInCents = convertToCents(amount, currency.decimalPlaces);
@@ -26,7 +29,19 @@ export const createPaymentService = async (
     merchantId,
     status: "PENDING",
   });
-
+  if (payment) {
+    const logData: LogDataType = {
+      event: "payment.created",
+      requestId,
+      data: {
+        paymentId: payment.id,
+        amount: payment.amount,
+        status: payment.status,
+        currencyCode,
+      },
+    };
+    paymentsLogger.info(logData, "Payment Created");
+  }
   // Simulation for interacting with the bank
   const status = getRandomPaymentStatus();
 
@@ -35,6 +50,16 @@ export const createPaymentService = async (
       payment.id,
       "FAILED",
     );
+    const logData: LogDataType = {
+      event: "payment.created",
+      requestId,
+      data: {
+        paymentId: failedPayment.id,
+        amount: failedPayment.amount,
+        currencyCode,
+      },
+    };
+    paymentsLogger.warn(logData, "Payment Failed");
     return failedPayment;
   }
   const { ledgerDebit, ledgerCredit } = paymentLedgerEntries(
@@ -49,12 +74,21 @@ export const createPaymentService = async (
     ledgerDebit,
     ledgerCredit,
   );
+  if (capturedPayment.length > 0) {
+    const logData: LogDataType = {
+      event: "payment.created",
+      requestId,
+      data: {
+        paymentId: capturedPayment[0].id,
+        amount: capturedPayment[0].amount,
+        currencyCode,
+      },
+    };
+    paymentsLogger.info(logData, "Payment Captured");
+  }
   return capturedPayment[0];
 };
 
-export const findAllPaymentsService = async (merchantId: string) => {
-  return await findAllPaymentsRepository(merchantId);
-};
 export const findPaymentService = async (
   paymentId: string,
   merchantId: string,
@@ -72,6 +106,7 @@ export const refundPaymentService = async (
   paymentId: string,
   amount: number,
   merchantId: string,
+  requestId: string,
 ) => {
   const payment = await validateFindPayment(paymentId, merchantId);
   const amountInCents = convertToCents(
@@ -100,6 +135,21 @@ export const refundPaymentService = async (
     ledgerDebit,
     ledgerCredit,
   );
+
+  if (refunded.length > 0) {
+    const logData: LogDataType = {
+      event:
+        refunded[0].status === "CAPTURED"
+          ? "payments.refund.partial"
+          : "payments.refund.full",
+      requestId,
+      data: {
+        paymentId,
+        refundedAmount: refunded[0].refundedAmount,
+      },
+    };
+    paymentsLogger.info(logData, "Payment refunded");
+  }
   return refunded[0];
 };
 

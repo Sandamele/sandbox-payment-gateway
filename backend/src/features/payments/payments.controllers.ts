@@ -7,23 +7,28 @@ import {
   refundPaymentService,
 } from "./payments.services";
 import { setCacheService } from "../cache";
+import { paymentsLogger } from "../../lib/logger/payments.logger";
 const TTL_SECONDS = 86400;
 
 export const createPayment: RequestHandler = async (req, res) => {
   const { currencyCode, amount } = req.body;
   const { merchantId } = res.locals;
   const idempotencyKey = req.headers["x-idempotency-key"] as string;
-  const payment = await createPaymentService(amount, currencyCode, merchantId);
-  await setCacheService(idempotencyKey, payment, TTL_SECONDS).catch((error) =>
-    console.error("Idempotency cache write failed", { idempotencyKey, error }),
+  const { requestId } = res.locals;
+  const payment = await createPaymentService(
+    amount,
+    currencyCode,
+    merchantId,
+    requestId,
   );
-  return successResponse(res, payment, 201);
-};
+  await setCacheService(idempotencyKey, payment, TTL_SECONDS).catch((error) =>
+    paymentsLogger.error(
+      { idempotencyKey, error, requestId },
+      "Idempotency cache write failed",
+    ),
+  );
 
-export const findAllPayments: RequestHandler = async (req, res) => {
-  const { merchantId } = res.locals;
-  const payments = await findAllPaymentsService(merchantId);
-  return successResponse(res, payments, 200);
+  return successResponse(res, payment, 201);
 };
 
 export const findPayment: RequestHandler = async (req, res) => {
@@ -38,9 +43,13 @@ export const refundPayment: RequestHandler = async (req, res) => {
   const { amount } = req.body;
   const { merchantId } = res.locals;
   const idempotencyKey = req.headers["x-idempotency-key"] as string;
-  const payment = await refundPaymentService(id, amount, merchantId);
+  const { requestId } = res.locals;
+  const payment = await refundPaymentService(id, amount, merchantId, requestId);
   await setCacheService(idempotencyKey, payment, TTL_SECONDS).catch((error) =>
-    console.error("Idempotency cache write failed", { idempotencyKey, error }),
+    paymentsLogger.error(
+      { idempotencyKey, error , requestId},
+      "Idempotency cache write failed",
+    ),
   );
 
   return successResponse(res, payment, 200);

@@ -1,5 +1,11 @@
 import type { Response } from "express";
 import type { ApiResponseType } from "./apiResponse.types";
+import type {
+  LogDataType,
+  LoggerLevelType,
+  SelectedLoggerType,
+} from "../../types/logger.type";
+import { logger } from "../logger";
 
 /**
  * Sends a standardized successful API response.
