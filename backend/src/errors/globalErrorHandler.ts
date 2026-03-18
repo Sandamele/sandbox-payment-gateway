@@ -1,6 +1,7 @@
 import type { NextFunction, Request, Response } from "express";
 import { AppError } from "./appError";
 import errorResponse from "../lib/apiResponse/errorResponse";
+import { globalErrorHandlerLogger } from "../lib/logger";
 
 export default function globalErrorHandler(
   err: unknown,
@@ -8,15 +9,16 @@ export default function globalErrorHandler(
   res: Response,
   next: NextFunction,
 ) {
+  const { requestId } = res.locals;
   if (err instanceof AppError) {
     const error = {
       message: err.message,
       code: err.code,
     };
-    console.error({ error });
+    globalErrorHandlerLogger.error({ error, requestId }, "App Error");
     return errorResponse(res, error, err.statusCode);
   }
-  console.error(err);
+  globalErrorHandlerLogger.error({ error: err, requestId }, "Global Error");
   return errorResponse(
     res,
     {

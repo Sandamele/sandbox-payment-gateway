@@ -11,7 +11,8 @@ export const createMerchant: RequestHandler = async (req, res) => {
     sub: string;
   };
   const { organizationName } = req.body;
-  const merchant = await createMerchantService(userId, email, organizationName);
+  const {requestId} = res.locals;
+  const merchant = await createMerchantService(userId, email, organizationName, requestId);
   return successResponse(res, merchant, 201);
 };
 
