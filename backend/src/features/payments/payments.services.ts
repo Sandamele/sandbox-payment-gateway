@@ -1,7 +1,6 @@
 import { convertToCents } from "../../lib/convertToCents";
 import {
   createPaymentRepository,
-  findAllPaymentsRepository,
   findPaymentRepository,
   processPaymentTransactionRepository,
   processRefundPaymentRepository,
@@ -10,9 +9,10 @@ import {
 import { AppError } from "../../errors/appError";
 import { validateCurrencyService } from "../currency";
 import { getRandomPaymentStatus } from "../../lib/getRandomPaymentStatus";
-import { paymentLedgerEntries, refundLedgerEntries } from "./payment.helper";
+
 import { paymentsLogger } from "../../lib/logger/payments.logger";
 import type { LogDataType } from "../../types/logger.type";
+import { paymentLedgerEntries, refundLedgerEntries } from "./payments.helper";
 
 export const createPaymentService = async (
   amount: number,
@@ -51,7 +51,7 @@ export const createPaymentService = async (
       "FAILED",
     );
     const logData: LogDataType = {
-      event: "payment.created",
+      event: "payment.failed",
       requestId,
       data: {
         paymentId: failedPayment.id,
@@ -76,7 +76,7 @@ export const createPaymentService = async (
   );
   if (capturedPayment.length > 0) {
     const logData: LogDataType = {
-      event: "payment.created",
+      event: "payment.captured",
       requestId,
       data: {
         paymentId: capturedPayment[0].id,
@@ -94,7 +94,6 @@ export const findPaymentService = async (
   merchantId: string,
 ) => {
   const payment = await findPaymentRepository(paymentId, merchantId);
-
   if (!payment) {
     throw new AppError("Payment not found", 404, "PAYMENT_NOT_FOUND");
   }
@@ -108,7 +107,7 @@ export const refundPaymentService = async (
   merchantId: string,
   requestId: string,
 ) => {
-  const payment = await validateFindPayment(paymentId, merchantId);
+  const payment = await validateRefundPayment(paymentId, merchantId);
   const amountInCents = convertToCents(
     amount,
     payment.currency.decimalPlaces || 0,
@@ -135,7 +134,6 @@ export const refundPaymentService = async (
     ledgerDebit,
     ledgerCredit,
   );
-
   if (refunded.length > 0) {
     const logData: LogDataType = {
       event:
@@ -153,8 +151,12 @@ export const refundPaymentService = async (
   return refunded[0];
 };
 
-const validateFindPayment = async (paymentId: string, merchantId: string) => {
+const validateRefundPayment = async (paymentId: string, merchantId: string) => {
   const payment = await findPaymentService(paymentId, merchantId);
+
+  if (!payment) {
+    throw new AppError("Payment not found", 404, "PAYMENT_NOT_FOUND");
+  }
 
   if (payment.status === "REFUNDED") {
     throw new AppError(
