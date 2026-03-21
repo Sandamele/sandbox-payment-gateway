@@ -1,5 +1,9 @@
 import { prisma } from "../../lib/prisma";
-import type { LedgerType, PaymentRepositoryType, StatusType } from "./payments.types";
+import type {
+  LedgerType,
+  PaymentRepositoryType,
+  StatusType,
+} from "./payments.types";
 
 export const createPaymentRepository = async ({
   amountInCents,
@@ -47,10 +51,6 @@ export const processPaymentTransactionRepository = async (
     prisma.paymentLedger.create({ data: ledgerDebit }),
     prisma.paymentLedger.create({ data: ledgerCredit }),
   ]);
-};
-
-export const findAllPaymentsRepository = async (merchantId: string) => {
-  return prisma.payment.findMany({ where: { merchantId } });
 };
 
 export const findPaymentRepository = async (id: string, merchantId: string) => {
