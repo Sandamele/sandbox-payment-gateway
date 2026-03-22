@@ -20,15 +20,15 @@ enum LedgerType {
 }
 
 model Merchant {
-  id               String   @id @default(ulid())
-  userId           String   @unique
-  email            String   @unique
+  id               String    @id @default(ulid())
+  userId           String    @unique
+  email            String    @unique
   organizationName String
-  isActive         Boolean? @default(true)
-  createdAt        DateTime @default(now())
-  updatedAt        DateTime @updatedAt
-
-  apiKeys ApiKeys[]
+  isActive         Boolean?  @default(true)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  user             User      @relation(fields: [userId], references: [id])
+  apiKeys          ApiKeys[]
 
   payments Payment[]
 
@@ -79,7 +79,7 @@ model Payment {
 
   currency Currency @relation(fields: [currencyCode], references: [code])
 
-  merchants Merchant @relation(fields: [merchantId], references: [id])
+  merchants      Merchant        @relation(fields: [merchantId], references: [id])
   paymentLedgers PaymentLedger[]
 }
 
@@ -94,9 +94,9 @@ model PaymentLedger {
   description  String
   createdAt    DateTime   @default(now())
 
-  currency Currency @relation(fields: [currencyCode], references: [code])
+  currency  Currency @relation(fields: [currencyCode], references: [code])
   merchants Merchant @relation(fields: [merchantId], references: [id])
-  payment  Payment  @relation(fields: [paymentId], references: [id])
+  payment   Payment  @relation(fields: [paymentId], references: [id])
 }
 
 // TODO merchant relations
@@ -109,4 +109,64 @@ model Cache {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("cache")
+}
+
+model User {
+  id            String     @id
+  name          String
+  email         String
+  emailVerified Boolean    @default(false)
+  image         String?
+  createdAt     DateTime   @default(now())
+  updatedAt     DateTime   @updatedAt
+  sessions      Session[]
+  accounts      Account[]
+  merchants     Merchant[]
+
+  @@unique([email])
+  @@map("user")
+}
+
+model Session {
+  id        String   @id
+  expiresAt DateTime
+  token     String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  ipAddress String?
+  userAgent String?
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([token])
+  @@index([userId])
+  @@map("session")
+}
+
+model Account {
+  id                    String    @id
+  accountId             String
+  providerId            String
+  userId                String
+  user                  User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  accessToken           String?
+  refreshToken          String?
+  idToken               String?
+  accessTokenExpiresAt  DateTime?
+  refreshTokenExpiresAt DateTime?
+  scope                 String?
+  password              String?
+  createdAt             DateTime  @default(now())
+  updatedAt             DateTime  @updatedAt
+
+  @@index([userId])
+  @@map("account")
+}
+
+model Verification {
+  id         String   @id
+  identifier String
+  value      String
+  expiresAt  DateTime
+  createdAt  DateTime @default(now())
 }
