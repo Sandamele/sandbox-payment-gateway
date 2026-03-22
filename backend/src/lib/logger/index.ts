@@ -8,6 +8,10 @@ import { paymentsLogger } from "./payments.logger";
 
 export { globalErrorHandlerLogger } from "./globalErrorHandler.logger";
 export { merchantsLogger } from "./merchants.logger";
+export { authenticationLogger } from "./authentication.logger";
+export { apiKeysLogger } from "./apiKeys.logger";
+export { paymentsLogger } from "./payments.logger";
+
 export const logger = (
   selectedLogger: SelectedLoggerType,
   level: LoggerLevelType,

@@ -2,7 +2,6 @@ import successResponse from "../../lib/apiResponse/successResponse";
 import type { RequestHandler } from "express";
 import {
   createPaymentService,
-  findAllPaymentsService,
   findPaymentService,
   refundPaymentService,
 } from "./payments.services";

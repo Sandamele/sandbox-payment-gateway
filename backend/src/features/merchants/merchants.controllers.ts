@@ -6,18 +6,20 @@ import {
 } from "./merchants.services";
 
 export const createMerchant: RequestHandler = async (req, res) => {
-  const { email, sub: userId } = req.oidc.user as {
-    email: string;
-    sub: string;
-  };
+  const { email, id } = res.locals.user;
   const { organizationName } = req.body;
-  const {requestId} = res.locals;
-  const merchant = await createMerchantService(userId, email, organizationName, requestId);
+  const { requestId } = res.locals;
+  const merchant = await createMerchantService(
+    id,
+    email,
+    organizationName,
+    requestId,
+  );
   return successResponse(res, merchant, 201);
 };
 
 export const findMerchant: RequestHandler = async (req, res) => {
-  const { sub: userId } = req.oidc.user as { sub: string };
-  const merchant = await findMerchantService(userId);
+  const { id } = res.locals.user;
+  const merchant = await findMerchantService(id);
   return successResponse(res, merchant, 200);
 };
