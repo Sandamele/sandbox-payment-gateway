@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { fireEvent, render, screen } from "@testing-library/react";
-import { LoginForm } from "./LoginForm";
+import { LoginForm } from "../components/LoginForm";
 import "@testing-library/jest-dom";
 import { BrowserRouter } from "react-router-dom";
 import userEvent from "@testing-library/user-event";

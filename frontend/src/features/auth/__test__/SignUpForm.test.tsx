@@ -1,6 +1,6 @@
 import { BrowserRouter } from "react-router-dom";
 import { describe, expect, it } from "vitest";
-import { SignUpForm } from "./SignUpForm";
+import { SignUpForm } from "../components/SignUpForm";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import userEvent from "@testing-library/user-event";

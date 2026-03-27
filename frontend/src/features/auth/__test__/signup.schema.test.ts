@@ -1,5 +1,5 @@
 import { describe, it, expect } from "vitest";
-import { SignUpSchema } from "./signup.schema";
+import { SignUpSchema } from "../schemas/signup.schema";
 describe("SignUpSchema", () => {
   describe("First Name validation", () => {
     it("throws 'Minimum 3 characters required'", async () => {
