@@ -8,7 +8,7 @@ import { authenticationLogger } from "../../lib/logger";
 export const register: RequestHandler = async (req, res, next) => {
   const { requestId } = res.locals;
   try {
-    const { name, email, password } = req.body;
+    const { name, email, password, role } = req.body;
 
     const { headers, response } = await auth.api.signUpEmail({
       returnHeaders: true,
@@ -16,6 +16,7 @@ export const register: RequestHandler = async (req, res, next) => {
         email,
         password,
         name: name,
+        role,
       },
     });
 
