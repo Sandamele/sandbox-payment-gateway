@@ -14,6 +14,12 @@ enum PaymentStatus {
   REFUNDED
 }
 
+enum UserRole {
+  ADMIN
+  USER
+  MERCHANT
+}
+
 enum LedgerType {
   DEBIT // Payment captured from customer
   CREDIT // Funds credited to merchant
@@ -99,8 +105,6 @@ model PaymentLedger {
   payment   Payment  @relation(fields: [paymentId], references: [id])
 }
 
-// TODO merchant relations
-
 // cache table
 model Cache {
   key       String   @id
@@ -117,6 +121,7 @@ model User {
   email         String
   emailVerified Boolean    @default(true)
   image         String?
+  role          UserRole   @default(USER)
   createdAt     DateTime   @default(now())
   updatedAt     DateTime   @updatedAt
   sessions      Session[]
@@ -126,7 +131,6 @@ model User {
   @@unique([email])
   @@map("user")
 }
-
 model Session {
   id        String   @id
   expiresAt DateTime
