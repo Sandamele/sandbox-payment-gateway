@@ -2,15 +2,20 @@
   "files": [],
   "references": [
     {
-      "path": "./tsconfig.node.json"
-    }
+      "path": "./tsconfig.node.json",
+    },
   ],
   "compilerOptions": {
     "baseUrl": ".",
     "paths": {
       "@/*": [
         "./src/*"
-      ]
-    }
+      ],
+    },
+    "types": [
+      "vite/client",
+      "vitest/globals",
+      "node"
+    ]
   },
 }

@@ -16,7 +16,7 @@ describe("LoginSchema", () => {
   });
   it("throws password is required", async () => {
     await expect(
-      LoginSchema.validateAt("passwords", { passwords: "" }),
+      LoginSchema.validateAt("password", { password: "" }),
     ).rejects.toThrow("Password is required");
   });
 });

@@ -1,23 +1,11 @@
-import { useFormik } from "formik";
 import { TextField } from "../../../shared/components/forms/TextField";
 import { PasswordField } from "../../../shared/components/forms/PasswordField";
 import { Button } from "../../../shared/components/ui/button";
 import { Link } from "react-router-dom";
-import { SignUpSchema } from "../schemas/signup.schema";
+import { useSignup } from "../hooks/useSignUp";
+import { Spinner } from "../../../shared/components/ui/spinner";
 export const SignUpForm = () => {
-  const formik = useFormik({
-    initialValues: {
-      firstName: "",
-      lastName: "",
-      email: "",
-      newPassword: "",
-      confirmPassword: "",
-    },
-    validationSchema: SignUpSchema,
-    onSubmit: (values) => {
-      console.log(values);
-    },
-  });
+  const { formik } = useSignup();
   return (
     <div>
       <form onSubmit={formik.handleSubmit}>
@@ -62,19 +50,20 @@ export const SignUpForm = () => {
               error: formik.errors.email ?? "",
               touched: formik.touched.email ?? false,
             }}
+            autoComplete="username"
           />
         </div>
         <div className="mt-6">
           <PasswordField
             label="Password"
-            name="newPassword"
-            id="newPassword"
-            value={formik.values.newPassword}
+            name="password"
+            id="password"
+            value={formik.values.password}
             handleChange={formik.handleChange}
             handleBlur={formik.handleBlur}
             errors={{
-              error: formik.errors.newPassword ?? "",
-              touched: formik.touched.newPassword ?? false,
+              error: formik.errors.password ?? "",
+              touched: formik.touched.password ?? false,
             }}
             autoComplete="new-password"
           />
@@ -94,8 +83,16 @@ export const SignUpForm = () => {
             autoComplete="new-password"
           />
         </div>
-        <Button className="uppercase font-semibold mt-6 w-full" type="submit">
-          Create Account
+        <Button
+          className="uppercase font-semibold mt-6 w-full"
+          type="submit"
+          disabled={formik.isSubmitting}
+        >
+          {formik.isSubmitting ? (
+            <Spinner color="secondary" />
+          ) : (
+            "Create Account"
+          )}
         </Button>
       </form>
       <p className="text-sm mt-4 text-center">

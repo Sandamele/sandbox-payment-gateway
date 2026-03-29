@@ -46,31 +46,31 @@ describe("SignUpSchema", () => {
   describe("Password Validation", async () => {
     it("throws 'Password must be at least 8 characters'", async () => {
       await expect(
-        SignUpSchema.validateAt("newPassword", { newPassword: "Pass" }),
+        SignUpSchema.validateAt("password", { password: "Pass" }),
       ).rejects.toThrow("Password must be at least 8 characters");
     });
     it("throws 'Password must contain at least one uppercase letter'", async () => {
       await expect(
-        SignUpSchema.validateAt("newPassword", { newPassword: "password" }),
+        SignUpSchema.validateAt("password", { password: "password" }),
       ).rejects.toThrow("Password must contain at least one uppercase letter");
     });
     it("throws 'Password must contain at least one number'", async () => {
       await expect(
-        SignUpSchema.validateAt("newPassword", { newPassword: "Password" }),
+        SignUpSchema.validateAt("password", { password: "Password" }),
       ).rejects.toThrow("Password must contain at least one number");
     });
     it("throws 'Password must contain at least one lowercase letter'", async () => {
       await expect(
-        SignUpSchema.validateAt("newPassword", { newPassword: "PASSWORD" }),
+        SignUpSchema.validateAt("password", { password: "PASSWORD" }),
       ).rejects.toThrow("Password must contain at least one lowercase letter");
     });
-    it("throws 'passwords must match'", async () => {
+    it("throws 'password must match'", async () => {
       await expect(
         SignUpSchema.validateAt("confirmPassword", {
-          newPassword: "Password1",
+          password: "Password1",
           confirmPassword: "password1",
         }),
-      ).rejects.toThrow("Passwords must match");
+      ).rejects.toThrow("password must match");
     });
   });
 });

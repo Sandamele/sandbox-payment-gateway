@@ -7,7 +7,7 @@ export type FieldGroupProps = {
   errors: {
     error: string;
     touched: boolean;
-  }; 
+  };
 };
 type TypeProps = "text" | "email" | "password" | "number";
 export type TextFieldProps = {
@@ -22,6 +22,7 @@ export type TextFieldProps = {
     error: string;
     touched: boolean;
   };
+  autoComplete?: string;
 };
 export type PasswordFieldProps = {
   label: string;
