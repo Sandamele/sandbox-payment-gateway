@@ -6,7 +6,7 @@ export const ErrorMessage = ({
   className?: string;
 }) => {
   return (
-    <div className={`text-sm text-[#E05252] ${className}`}>
+    <div className={`text-[12px] text-[#E05252] ${className}`}>
       <span>{message}</span>
     </div>
   );
