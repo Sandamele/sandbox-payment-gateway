@@ -14,7 +14,7 @@ export const SignUpSchema = Yup.object({
     .trim()
     .email("Invalid email")
     .required("Email is required"),
-  newPassword: Yup.string()
+  password: Yup.string()
     .trim()
     .min(8, "Password must be at least 8 characters")
     .matches(
@@ -30,6 +30,6 @@ export const SignUpSchema = Yup.object({
 
   confirmPassword: Yup.string()
     .trim()
-    .oneOf([Yup.ref("newPassword")], "Passwords must match")
+    .oneOf([Yup.ref("password")], "password must match")
     .required("Confirm password is required"),
 });

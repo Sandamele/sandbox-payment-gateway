@@ -11,6 +11,7 @@ export const TextField = ({
   handleChange,
   handleBlur,
   errors,
+  autoComplete = "",
 }: TextFieldProps) => {
   return (
     <FieldGroup id={id} label={label} errors={errors}>
@@ -22,6 +23,7 @@ export const TextField = ({
         onChange={handleChange}
         onBlur={handleBlur}
         aria-invalid={errors.error !== "" && errors.touched}
+        autoComplete={autoComplete}
       />
     </FieldGroup>
   );

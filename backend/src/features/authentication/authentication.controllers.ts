@@ -5,7 +5,25 @@ import { isAPIError } from "better-auth/api";
 import errorResponse from "../../lib/apiResponse/errorResponse";
 import { authenticationLogger } from "../../lib/logger";
 
-export const register: RequestHandler = async (req, res, next) => {
+export const currentLoginUser: RequestHandler = async (req, res) => {
+  const { requestId } = res.locals;
+  try {
+    const session = await auth.api.getSession();
+    const user = {
+      id: session?.user.id,
+      email: session?.user.email,
+      role: session?.user.role,
+    };
+    return successResponse(res, user, 200);
+  } catch (error) {
+    if (isAPIError(error)) {
+      authenticationLogger.error({ error, requestId }, "Logout Error");
+      return errorResponse(res, error.body, error.statusCode);
+    }
+  }
+};
+
+export const register: RequestHandler = async (req, res) => {
   const { requestId } = res.locals;
   try {
     const { name, email, password, role } = req.body;
@@ -19,7 +37,10 @@ export const register: RequestHandler = async (req, res, next) => {
         role,
       },
     });
-
+    const sessionToken = headers.get("set-cookie");
+    if (sessionToken) {
+      res.setHeader("Set-Cookie", sessionToken);
+    }
     return successResponse(res, response, 201);
   } catch (error) {
     if (isAPIError(error)) {
